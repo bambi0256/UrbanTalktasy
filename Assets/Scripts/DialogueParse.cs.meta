@@ -1,0 +1,12 @@
+fileFormatVersion: 2
+guid: 33a7f40df8c2c1a43a56a2f75fdb97d8
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - tsvFile: {fileID: 6742383920256320401, guid: ced52fbbcc55b4c4ca74a7c2ea8981e5, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

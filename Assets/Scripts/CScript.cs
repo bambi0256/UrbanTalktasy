@@ -1,24 +1,33 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
+[System.Serializable]
+public struct TalkData
+{
+    public int id;
+    public int type;
+    public string name;
+    public string context;
+    public string CharSprite;
+    public string BackSprite;
+    public string BackSound;
+    public string EffectSound;
+    public string EffectSprite;
+    public float Duration;
+    public string Choose1;
+    public int Choose1_id;
+    public string Choose2;
+    public int Choose2_id;
+    public int FoxLove;
+    public int DobLove;
+    public int WooLove;
+}
 
 public class CScript
 {
-    private int id;
-    private int type;
-    private int choose;
-    private int text;
-    private int change;
-    private bool marker;
-
-    public CScript(int _id, int _type, int _choose, int _text, int _change, bool _marker)
-    {
-        this.id = _id;
-        this.type = _type;
-        this.choose = _choose;
-        this.text = _text;
-        this.change = _change;
-        this.marker = _marker;
-    }
+    [SerializeField] int id;
+    [SerializeField] TalkData[] talkDatas;
 }
 
