@@ -4,7 +4,7 @@ MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
-  - tsvFile: {fileID: 6742383920256320401, guid: ced52fbbcc55b4c4ca74a7c2ea8981e5, type: 3}
+  - csvFile: {fileID: 4900000, guid: 68f74e9343646a44abeb20bce720d716, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
