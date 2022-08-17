@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace Data
@@ -11,35 +12,43 @@ namespace Data
         public TextAsset csvFile3;
         public TextAsset csvFile4;
         public TextAsset csvFile5;
+        
+        private const string SPLIT_RE = ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
+        private const string LINE_SPLIT_RE = "\r\n|\n\r|\n|\r";
 
-        public static Dictionary<TextAsset, Dictionary<int, TalkData>> DialogueDictionary =
-            new Dictionary<TextAsset, Dictionary<int, TalkData>>();
-        
-        private void Parsing(TextAsset textAsset)
+        public static Dictionary<TextAsset, Dictionary<int, TalkData>> csvData;
+
+        private void Start()
         {
-            // 아래 한 줄 빼기
-            var csvText = textAsset.text.Substring(0, textAsset.text.Length - 1);
-            // 줄바꿈(한 줄)을 기준으로 csv 파일을 쪼개서 string배열에 줄 순서대로 담음
-            var rows = csvText.Split(new char[] { '\n' });
-            //1부터 함 > Header 무시 + 열 번호로 체크
-            for (var i = 1; i < rows.Length; i++) 
-            {
-                // 열 별로 구분
-                var rowValues = rows[i].Split(new char[] { ',' });
-                // 구조체 정보 저장
-                TalkData talkData;
-                talkData.name = rowValues[1];
-                talkData.context = rowValues[2];
-                talkData.Duration = float.Parse(rowValues[3]);
-                talkData.cmd = rowValues[4];
-                DialogueDictionary[textAsset][i] = talkData;
-            } // for 문 끝나는 중괄호
+            Parsing(csvFile0);
+            Parsing(csvFile1);
+            Parsing(csvFile2);
+            Parsing(csvFile3);
+            Parsing(csvFile4);
+            Parsing(csvFile5);
         }
-        
-        public TalkData GetDialogue(TextAsset textAsset, int id)
+
+        private static void Parsing(TextAsset textAsset)
         {
-            Parsing(textAsset);
-            return DialogueDictionary[textAsset][id];
+            // 줄 별 분리
+            var dataLines = Regex.Split(textAsset.text, LINE_SPLIT_RE);
+
+            //각 줄 별 값 분리
+            for (var num = 1; num <= dataLines.Length; num++) 
+            {
+                var values = Regex.Split(dataLines[num], SPLIT_RE);
+                if (values.Length <= 0) continue;
+                
+                // 줄 별 정보 딕셔너리
+                var entry = new TalkData
+                {
+                    name = values[1],
+                    context = values[2],
+                    Duration = float.Parse(values[3]),
+                    cmd = values[4]
+                };
+                csvData[textAsset][num] = entry;
+            }
         }
     }
 }
