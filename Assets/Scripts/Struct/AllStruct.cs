@@ -1,5 +1,3 @@
-using JetBrains.Annotations;
-
 namespace Struct
 {
     public struct TalkData
