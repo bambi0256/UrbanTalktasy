@@ -1,15 +1,41 @@
+using System;
 using System.Collections;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using Data;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Game
 {
+    
+    
     public class IdRoutine : MonoBehaviour
     {
-        private static TextAsset curChap;
-        private static int curId;
+        // Regex
+        private const string CMD_NAME = @"(^\w+)";
+        private const string CMD_FACTOR = @"(?<=,|\()(\""""?\w+)(\""""?)";
+
+        // Parsing
+        private TextAsset curChap;
+        private int curId;
         
+        // Id Control
+        private bool IdUpFlag;
+        
+        // Text Effect Control
+        private bool isTextEffect;
+        public Text Context;
+        public Text Name;
+        private float TextSpeed = 0.1f;
+
+        // Game Event Control
+        private bool GameState;
+        public bool AutoMode;
+        
+        // Routine WaitControl
+        
+        // in Functions
         private int _id;
         public GameObject DarkPanel;
         public GameObject NameCard;
@@ -20,41 +46,139 @@ namespace Game
         public GameObject MessengerBox;
         public Text MessengerName;
         
-        private void Start() 
+        private void Start()
         {
             StartCoroutine(VisualNovelRoutine());
         }
 
-
-        private void LoadSave()
-        {
-            
-        }
-        
         private IEnumerator VisualNovelRoutine()
         {
-            yield return new WaitForEndOfFrame();
+            // 세이브된 내용 기반으로 Cursor 설정
             
-            // curChap, Id 설정, Save가 없을 경우 
-            LoadSave();
-
+            
+            // 루틴 시작
             while (curId < DialogueParse.csvData[curChap].Count)
             {
+                // 게임 중 상태를 체크
+                if (GameState == false) yield return new WaitUntil(() => GameState);
+                
+                // Flag 초기화
+                isTextEffect = true;
+                IdUpFlag = true;
+                
                 // Parsing 정보 가져오기
-                
+                var Now = DialogueParse.csvData[curChap][curId];
+
                 // cmd 진행
-                
-                // 루틴 중지 지점, 복귀 지점 1
-                
+                var cmdData = Now.cmd;
+                CallCmd(cmdData);
+
+                // NameTag Text 변경
+                Name.text = Now.name;
+
                 // Text 출력
+                if (!isTextEffect) Context.text = Now.context;
+                else StartCoroutine(Typing(Context, Now.context, TextSpeed));
                 
-                // 루틴 복귀 지점 2
-                
+                // AutoMode, Duration 만큼 기다리고 다음으로 진행
+                if (AutoMode) yield return new WaitForSecondsRealtime(Now.Duration);
+                // UnAuto, 좌클릭 또는 스페이스 입력을 기다림
+                else yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Mouse0));
+
                 // id++;
+                if (IdUpFlag)
+                {
+                    curId++;
+                }
             }
         }
         
+        // 타이핑 효과
+        private static IEnumerator Typing(Text typingText, string message, float speed)
+        {
+            for (var i = 0; i < message.Length; i++)
+            {
+                typingText.text = message.Substring(0, i + 1);
+                yield return new WaitForSeconds(speed);
+            }
+        }
         
+        // cmd 스플릿
+        private void CallCmd(string WholeCmd)
+        {
+            var EachCmd = WholeCmd.Split(';');
+            var num = EachCmd.Length;
+
+            for (var i = 0; i < num; i++)
+            {
+                string F_name = null;
+                F_name += Regex.Split(EachCmd[i], CMD_NAME);
+                var factors = Regex.Split(EachCmd[i], CMD_FACTOR);
+                var F_factor = SetFactors(factors);
+                Execute(F_name, F_factor);
+            }
+        }
+
+        // Factors 구성 함수
+        private static object[] SetFactors(string[] factors)
+        {
+            object[] _factors = null;
+            for (var i = 0; i < factors.Length; ++i)
+            {
+                var _stringValue = factors[i];
+                var isInt = int.TryParse(_stringValue, out var _intValue);
+                var isFloat = float.TryParse(_stringValue, out var _floatValue);
+                var isString = isFloat == false && isInt == false;
+                if (isString)
+                {
+                    _factors![i] = _stringValue;
+                }
+                else if (isFloat)
+                {
+                    _factors![i] = _floatValue;
+                }
+                else
+                {
+                    _factors![i] = _intValue;
+                }
+            }
+            return _factors;
+        }
+        
+        // Cmd 실행 함수
+        private void Execute(string method, object[] factors)
+        {
+            var Function = typeof(IdRoutine).GetMethod(method);
+            if (Function == null) return;
+            try
+            {
+                Function.Invoke(this, factors);
+            }
+            catch (Exception)
+            {
+                var infos = Function.GetParameters();
+                foreach (var t in infos)
+                {
+                    var newFactors = new object[factors.Length];
+                    if (t.ParameterType == typeof(float[]))
+                    {
+                        for (var i = 0; i < newFactors.Length; ++i) newFactors[i] = (float)factors[i];
+                        continue;
+                    }
+                    if (t.ParameterType == typeof(string)) 
+                    {
+                        for (var i = 0; i < newFactors.Length; ++i) newFactors[i] = factors[i];
+                        continue;
+                    }
+                    if (t.ParameterType == typeof(int))
+                    {
+                        for (var i = 0; i < newFactors.Length; ++i) newFactors[i] = (int)factors[i];
+                        continue;
+                    }
+                    Function.Invoke(this, new object[] { newFactors });
+                }
+            }
+        }
         
         // cmd 함수들
         public void Choose(params int[] id)
@@ -67,7 +191,8 @@ namespace Game
 
         public void MoveTo(int id)
         {
-            // CurId 를 (id - 1)로 변경
+            IdUpFlag = false;
+            curId = id;
         }
 
         public void Love(string charName)
@@ -193,7 +318,7 @@ namespace Game
 
         public void SkipTo()
         {
-            //2번 복귀지점으로 돌아가기
+            isTextEffect = false;
         }
 
         public void LoadChoose(int chap, int id, params int[] ids)

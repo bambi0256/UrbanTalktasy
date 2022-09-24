@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Struct;
 using UnityEngine;
 
 namespace Data
@@ -33,7 +34,7 @@ namespace Data
             // 줄 별 분리
             var dataLines = Regex.Split(textAsset.text, LINE_SPLIT_RE);
 
-            //각 줄 별 값 분리
+            //각 줄 별 값 분리, num 0은 헤더
             for (var num = 1; num <= dataLines.Length; num++) 
             {
                 var values = Regex.Split(dataLines[num], SPLIT_RE);
