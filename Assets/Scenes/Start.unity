@@ -985,6 +985,7 @@ GameObject:
   m_Component:
   - component: {fileID: 473110798}
   - component: {fileID: 473110797}
+  - component: {fileID: 473110799}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1007,6 +1008,7 @@ MonoBehaviour:
   fox_level: 0
   dob_level: 0
   woo_level: 0
+  ThereAnySave: 0
   PrevScene: 
 --- !u!4 &473110798
 Transform:
@@ -1022,6 +1024,24 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &473110799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 473110796}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33a7f40df8c2c1a43a56a2f75fdb97d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  csvFile0: {fileID: 4900000, guid: 68f74e9343646a44abeb20bce720d716, type: 3}
+  csvFile1: {fileID: 4900000, guid: 68f74e9343646a44abeb20bce720d716, type: 3}
+  csvFile2: {fileID: 0}
+  csvFile3: {fileID: 0}
+  csvFile4: {fileID: 0}
+  csvFile5: {fileID: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0

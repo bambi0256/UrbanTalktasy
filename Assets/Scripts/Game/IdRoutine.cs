@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using Data;
 using UnityEngine;
@@ -8,8 +7,6 @@ using UnityEngine.UI;
 
 namespace Game
 {
-    
-    
     public class IdRoutine : MonoBehaviour
     {
         // Regex
@@ -17,7 +14,7 @@ namespace Game
         private const string CMD_FACTOR = @"(?<=,|\()(\""""?\w+)(\""""?)";
 
         // Parsing
-        private TextAsset curChap;
+        private int curChap;
         private int curId;
         
         // Id Control
@@ -30,7 +27,7 @@ namespace Game
         private float TextSpeed = 0.1f;
 
         // Game Event Control
-        private bool GameState;
+        public static bool GameState;
         public bool AutoMode;
         
         // Routine WaitControl
@@ -54,8 +51,17 @@ namespace Game
         private IEnumerator VisualNovelRoutine()
         {
             // 세이브된 내용 기반으로 Cursor 설정
-            
-            
+            if (!GameManager.Instance.ThereAnySave)
+            {
+                curChap = 0;
+                curId = 1;
+            }
+            else
+            {
+                curChap = GameManager.Instance.SaveData.curChap;
+                curId = GameManager.Instance.SaveData.curId;
+            }
+
             // 루틴 시작
             while (curId < DialogueParse.csvData[curChap].Count)
             {
@@ -81,10 +87,17 @@ namespace Game
                 else StartCoroutine(Typing(Context, Now.context, TextSpeed));
                 
                 // AutoMode, Duration 만큼 기다리고 다음으로 진행
-                if (AutoMode) yield return new WaitForSecondsRealtime(Now.Duration);
+                if (float.TryParse(Now.Duration, out var floatValues))
+                {
+                    if (AutoMode) yield return new WaitForSecondsRealtime(floatValues);
+                }
                 // UnAuto, 좌클릭 또는 스페이스 입력을 기다림
                 else yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Mouse0));
 
+                //AutoSave 관리
+                GameManager.Instance.SaveData.curChap = curChap;
+                GameManager.Instance.SaveData.curId = curId;
+                
                 // id++;
                 if (IdUpFlag)
                 {
@@ -187,17 +200,20 @@ namespace Game
             // 개수에 따라 box 활성화
             // 선택지의 내용을 불러와 출력
             // 입력 대기, 입력받으면 MoveTo() 작동
+            Debug.Log("Choose 작동");
         }
 
         public void MoveTo(int id)
         {
             IdUpFlag = false;
             curId = id;
+            Debug.Log("MoveTo 작동");
         }
 
         public void Love(string charName)
         {
             // GameManager의 InGame Love 값 증가
+            Debug.Log("Love 작동");
         }
 
         public void CharSprite(params string[] sprite)
@@ -205,126 +221,150 @@ namespace Game
             // Sprite 개수 확인
             // 개수에 맞는 패널 활성화
             // Sprite 변경
+            Debug.Log("CharSprite 작동");
         }
 
         public void SetBackSprite(string sprite)
         {
             // Sprite 변경
+            Debug.Log("SetBackSprite 작동");
         }
 
         public void SetBGM(string BGM)
         {
             // BGM Audio 변경
+            Debug.Log("SetBGM 작동");
         }
 
         public void SetEffect(string Effect)
         {
             // Effect Audio 변경
+            Debug.Log("SetEffect 작동");
         }
 
         public void DarkPanelActiveOn()
         {
             DarkPanel.SetActive(true);
+            Debug.Log("DarkPanelActiveOn 작동");
         }
 
         public void DarkPanelActiveOff()
         {
             DarkPanel.SetActive(false);
+            Debug.Log("DarkPanelActiveOff 작동");
         }
 
         public void FadeIn()
         {
             // Fade In
+            Debug.Log("Fade In 작동");
         }
 
         public void FadeOut()
         {
             // Fade Out
+            Debug.Log("Fade Out 작동");
         }
 
         public void NameCardOn()
         {
             NameCard.SetActive(true);
+            Debug.Log("NameCardOn 작동");
         }
 
         public void NameCardOff()
         {
             NameCard.SetActive(false);
+            Debug.Log("NameCardOff 작동");
         }
 
         public void BoxOff()
         {
             Box.SetActive(false);
+            Debug.Log("BoxOff 작동");
         }
 
         public void BoxOn()
         {
             Box.SetActive(true);
+            Debug.Log("BoxOn 작동");
         }
 
         public void SetBoxNar()
         {
             Box.GetComponent<SpriteRenderer>().sprite = Box_Nar;
+            Debug.Log("SetBoxNar 작동");
         }
 
         public void SetBoxDefault()
         {
             Box.GetComponent<SpriteRenderer>().sprite = Box_Default;
+            Debug.Log("SetBoxDefault 작동");
         }
 
         public void ExtraSpriteOn(string fileName)
         {
             // PopUp Active True
             // PopUp Sprite를 fileName Sprite로 변경
+            Debug.Log("ExtraSpriteOn 작동");
         }
 
         public void ExtraSpriteOff()
         {
             // Sprite 초기화
             // PopUp Active False
+            Debug.Log("ExtraSpriteOff 작동");
         }
 
         public void ShakeSprite()
         {
             // Animation 적용하기
+            Debug.Log("ShakeSprite 작동");
         }
 
         public void SetScroll(int chapter)
         {
             Scroll.value = 0;
             // chapter id Length로 MaxValue 변경
+            Debug.Log("SetScroll 작동");
         }
 
         public void StartMessenger(string charName)
         {
             MessengerBox.SetActive(true);
             MessengerName.text = charName;
+            Debug.Log("StartMessenger 작동");
         }
 
         public void MessengerLeft()
         {
             //콘텐츠 추가, 좌 정렬
+            Debug.Log("MessengerLeft 작동");
         }
 
         public void MessengerRight()
         {
             //콘텐츠 추가, 우 정렬
+            Debug.Log("MessengerRight 작동");
         }
 
         public void MessengerExit()
         {
             MessengerBox.SetActive(false);
+            Debug.Log("MessengerExit 작동");
         }
 
         public void SkipTo()
         {
             isTextEffect = false;
+            Debug.Log("SkipTo 작동");
         }
 
         public void LoadChoose(int chap, int id, params int[] ids)
         {
             //chap, id 의 선택 정보 가져오기 => myChoose
             //MoveTo(ids[myChoose]);
+            Debug.Log("LoadChoose 작동");
         }
     }
 }

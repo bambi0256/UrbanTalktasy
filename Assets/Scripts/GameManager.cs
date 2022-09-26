@@ -1,9 +1,6 @@
-using System;
 using System.Collections.Generic;
-using Game;
 using Struct;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class GameManager : MonoBehaviour
 {
@@ -13,7 +10,8 @@ public class GameManager : MonoBehaviour
     public float woo_level;
     
     //스크립트 Save
-    public Dictionary<TextAsset, int> SaveData;
+    public bool ThereAnySave;
+    public SaveData SaveData;
 
     //선택지 Save
     public List<ChooseData> ChooseData;
@@ -37,6 +35,7 @@ public class GameManager : MonoBehaviour
 
     //파괴불가
     private static GameManager _instance;
+
     public static GameManager Instance
     {
         get
@@ -66,11 +65,26 @@ public class GameManager : MonoBehaviour
 
     private void GetPref()
     {
-        
+        if (!PlayerPrefs.HasKey("CurChap") || !PlayerPrefs.HasKey("CurId"))
+        {
+            ThereAnySave = false;
+            return;
+        }
+        SaveData.curChap = PlayerPrefs.GetInt("CurChap");
+        SaveData.curId = PlayerPrefs.GetInt("CurId");
+        ThereAnySave = true;
     }
 
-    public void SavePref()
+    public void SavePref(int chap, int id)
     {
-        
+        if (chap != SaveData.curChap)
+        {
+            SaveData.curChap = chap;
+            PlayerPrefs.SetInt("CurChap", chap);
+        }
+
+        if (id == SaveData.curId) return;
+        SaveData.curId = id;
+        PlayerPrefs.SetInt("CurId", id);
     }
 }
