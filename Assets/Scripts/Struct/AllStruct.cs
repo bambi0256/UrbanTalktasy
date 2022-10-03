@@ -4,13 +4,9 @@ namespace Struct
 {
     public struct TalkData
     {
-        //[CanBeNull]
         public string name;
-        //[CanBeNull]
         public string context;
-        //[CanBeNull]
         public string Duration;
-        //[CanBeNull]
         public string cmd;
     }
 

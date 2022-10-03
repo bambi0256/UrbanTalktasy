@@ -14,6 +14,8 @@ namespace Game
         private const string CMD_FACTOR = @"(?<=,|\()(\""""?\w+)(\""""?)";
 
         // Parsing
+        public GameObject DialogueManager;
+        private DialogueParse dialogueParse;
         private int curChap;
         private int curId;
         
@@ -21,10 +23,11 @@ namespace Game
         private bool IdUpFlag;
         
         // Text Effect Control
+        public GameObject NextArrow;
         private bool isTextEffect;
         public Text Context;
         public Text Name;
-        private float TextSpeed = 0.1f;
+        private const float TextSpeed = 0.1f;
 
         // Game Event Control
         public static bool GameState;
@@ -42,9 +45,10 @@ namespace Game
         public Scrollbar Scroll;
         public GameObject MessengerBox;
         public Text MessengerName;
-        
+
         private void Start()
         {
+            dialogueParse = DialogueManager.GetComponent<DialogueParse>();
             StartCoroutine(VisualNovelRoutine());
         }
 
@@ -63,7 +67,7 @@ namespace Game
             }
 
             // 루틴 시작
-            while (curId < DialogueParse.csvData[curChap].Count)
+            while (curId < dialogueParse.csvData[curChap].Count)
             {
                 // 게임 중 상태를 체크
                 if (GameState == false) yield return new WaitUntil(() => GameState);
@@ -73,7 +77,7 @@ namespace Game
                 IdUpFlag = true;
                 
                 // Parsing 정보 가져오기
-                var Now = DialogueParse.csvData[curChap][curId];
+                var Now = dialogueParse.csvData[curChap][curId];
 
                 // cmd 진행
                 var cmdData = Now.cmd;
@@ -107,16 +111,18 @@ namespace Game
         }
         
         // 타이핑 효과
-        private static IEnumerator Typing(Text typingText, string message, float speed)
+        private IEnumerator Typing(Text typingText, string message, float speed)
         {
+            NextArrow.SetActive(false);
             for (var i = 0; i < message.Length; i++)
             {
                 typingText.text = message.Substring(0, i + 1);
                 yield return new WaitForSeconds(speed);
             }
+            NextArrow.SetActive(true);
         }
         
-        // cmd 스플릿
+        // cmd 스플릿 후 호출
         private void CallCmd(string WholeCmd)
         {
             var EachCmd = WholeCmd.Split(';');

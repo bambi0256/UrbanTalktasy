@@ -30,6 +30,10 @@ public class GameManager : MonoBehaviour
         }
         
         // 마우스 클릭 시 = 클릭받음 상태만 인지, 각 클릭은 해당 패널에서 KeyDown으로 작동시킬 것임.
+        if (Input.GetMouseButtonDown(0))
+        {
+            
+        }
         
     }
 
