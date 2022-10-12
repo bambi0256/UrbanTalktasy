@@ -27,7 +27,7 @@ namespace Game
         private bool isTextEffect;
         public Text Context;
         public Text Name;
-        private const float TextSpeed = 0.1f;
+        private const float TextSpeed = 0.05f;
 
         // Game Event Control
         public static bool GameState;
@@ -78,25 +78,26 @@ namespace Game
                 
                 // Parsing 정보 가져오기
                 var Now = dialogueParse.csvData[curChap][curId];
+                // Now[0] = id, [1] = name, [2] = context, [3] = Duration, [4] = CMD
 
                 // cmd 진행
-                var cmdData = Now.cmd;
-                CallCmd(cmdData);
+                CallCmd(Now[4]);
 
                 // NameTag Text 변경
-                Name.text = Now.name;
+                Name.text = Now[1];
 
                 // Text 출력
-                if (!isTextEffect) Context.text = Now.context;
-                else StartCoroutine(Typing(Context, Now.context, TextSpeed));
+                if (!isTextEffect) Context.text = Now[2];
+                else yield return StartCoroutine(Typing(Context, Now[2], TextSpeed));
                 
                 // AutoMode, Duration 만큼 기다리고 다음으로 진행
-                if (float.TryParse(Now.Duration, out var floatValues))
+                // UnAuto, 좌클릭 또는 스페이스 입력을 기다림
+                if (float.TryParse(Now[3], out var floatValues))
                 {
                     if (AutoMode) yield return new WaitForSecondsRealtime(floatValues);
+                    else yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Mouse0));
                 }
-                // UnAuto, 좌클릭 또는 스페이스 입력을 기다림
-                else yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Mouse0));
+                
 
                 //AutoSave 관리
                 GameManager.Instance.SaveData.curChap = curChap;
@@ -113,6 +114,7 @@ namespace Game
         // 타이핑 효과
         private IEnumerator Typing(Text typingText, string message, float speed)
         {
+            GameState = false;
             NextArrow.SetActive(false);
             for (var i = 0; i < message.Length; i++)
             {
@@ -120,6 +122,7 @@ namespace Game
                 yield return new WaitForSeconds(speed);
             }
             NextArrow.SetActive(true);
+            GameState = true;
         }
         
         // cmd 스플릿 후 호출
@@ -130,38 +133,33 @@ namespace Game
 
             for (var i = 0; i < num; i++)
             {
-                string F_name = null;
-                F_name += Regex.Split(EachCmd[i], CMD_NAME);
-                var factors = Regex.Split(EachCmd[i], CMD_FACTOR);
+                var F_name = Regex.Match(EachCmd[i], CMD_NAME);
+                var factors = Regex.Matches(EachCmd[i], CMD_FACTOR);
+                var Function = F_name.ToString();
                 var F_factor = SetFactors(factors);
-                Execute(F_name, F_factor);
+                Debug.Log(Function);
+                Debug.Log(F_factor[0]);
+                Execute(Function, F_factor);
             }
         }
 
         // Factors 구성 함수
-        private static object[] SetFactors(string[] factors)
+        private static object[] SetFactors(MatchCollection factors)
         {
-            object[] _factors = null;
-            for (var i = 0; i < factors.Length; ++i)
+            var output = new object[factors.Count];
+            for (var i = 0; i< factors.Count; i++)
             {
-                var _stringValue = factors[i];
+                var _stringValue = factors[i].Groups[0].ToString();
                 var isInt = int.TryParse(_stringValue, out var _intValue);
                 var isFloat = float.TryParse(_stringValue, out var _floatValue);
-                var isString = isFloat == false && isInt == false;
-                if (isString)
+                if (isFloat)
                 {
-                    _factors![i] = _stringValue;
+                    if (isInt) output[i] = _intValue;
+                    else output[i] = _floatValue;
                 }
-                else if (isFloat)
-                {
-                    _factors![i] = _floatValue;
-                }
-                else
-                {
-                    _factors![i] = _intValue;
-                }
+                else output[i] = _stringValue;
             }
-            return _factors;
+            return output;
         }
         
         // Cmd 실행 함수
@@ -176,10 +174,10 @@ namespace Game
             catch (Exception)
             {
                 var infos = Function.GetParameters();
+                var newFactors = new object[factors.Length];
                 foreach (var t in infos)
                 {
-                    var newFactors = new object[factors.Length];
-                    if (t.ParameterType == typeof(float[]))
+                    if (t.ParameterType == typeof(float))
                     {
                         for (var i = 0; i < newFactors.Length; ++i) newFactors[i] = (float)factors[i];
                         continue;
