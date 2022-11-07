@@ -27,7 +27,7 @@ namespace Game
         private bool isTextEffect;
         public Text Context;
         public Text Name;
-        private const float TextSpeed = 0.05f;
+        private const float TextSpeed = 0.1f;
 
         // Game Event Control
         public static bool GameState;
@@ -110,7 +110,15 @@ namespace Game
                 }
             }
         }
-        
+
+        private IEnumerator WaitSeconds(float time)
+        {
+            while (time > 0f)
+            {
+                time -= Time.deltaTime;
+            }
+            yield return null;
+        }
         // 타이핑 효과
         private IEnumerator Typing(Text typingText, string message, float speed)
         {
@@ -119,10 +127,11 @@ namespace Game
             for (var i = 0; i < message.Length; i++)
             {
                 typingText.text = message.Substring(0, i + 1);
-                yield return new WaitForSeconds(speed);
+                yield return StartCoroutine(WaitSeconds(speed));
             }
             NextArrow.SetActive(true);
             GameState = true;
+            yield break;
         }
         
         // cmd 스플릿 후 호출
@@ -138,7 +147,6 @@ namespace Game
                 var Function = F_name.ToString();
                 var F_factor = SetFactors(factors);
                 Debug.Log(Function);
-                Debug.Log(F_factor[0]);
                 Execute(Function, F_factor);
             }
         }
@@ -171,34 +179,35 @@ namespace Game
             {
                 Function.Invoke(this, factors);
             }
-            catch (Exception)
+            catch (ArgumentException)
             {
                 var infos = Function.GetParameters();
                 var newFactors = new object[factors.Length];
+                var i = 0;
                 foreach (var t in infos)
                 {
                     if (t.ParameterType == typeof(float))
                     {
-                        for (var i = 0; i < newFactors.Length; ++i) newFactors[i] = (float)factors[i];
-                        continue;
+                        newFactors[i] = (float)factors[i];
+                        i++;
                     }
-                    if (t.ParameterType == typeof(string)) 
+                    else if (t.ParameterType == typeof(string)) 
                     {
-                        for (var i = 0; i < newFactors.Length; ++i) newFactors[i] = factors[i];
-                        continue;
+                        newFactors[i] = factors[i].ToString();
+                        i++;
                     }
-                    if (t.ParameterType == typeof(int))
+                    else if (t.ParameterType == typeof(int))
                     {
-                        for (var i = 0; i < newFactors.Length; ++i) newFactors[i] = (int)factors[i];
-                        continue;
+                        newFactors[i] = (int)factors[i];
+                        i++;
                     }
-                    Function.Invoke(this, new object[] { newFactors });
                 }
+                Function.Invoke(this, new object[] { newFactors });
             }
         }
         
         // cmd 함수들
-        public void Choose(params int[] id)
+        public void Choose(params object[] id)
         {
             // 입력받은 개수 확인
             // 개수에 따라 box 활성화
@@ -220,7 +229,7 @@ namespace Game
             Debug.Log("Love 작동");
         }
 
-        public void CharSprite(params string[] sprite)
+        public void CharSprite(params object[] sprite)
         {
             // Sprite 개수 확인
             // 개수에 맞는 패널 활성화
@@ -296,13 +305,13 @@ namespace Game
 
         public void SetBoxNar()
         {
-            Box.GetComponent<SpriteRenderer>().sprite = Box_Nar;
+            Box.GetComponent<Image>().sprite = Box_Nar;
             Debug.Log("SetBoxNar 작동");
         }
 
         public void SetBoxDefault()
         {
-            Box.GetComponent<SpriteRenderer>().sprite = Box_Default;
+            Box.GetComponent<Image>().sprite = Box_Default;
             Debug.Log("SetBoxDefault 작동");
         }
 
@@ -364,7 +373,7 @@ namespace Game
             Debug.Log("SkipTo 작동");
         }
 
-        public void LoadChoose(int chap, int id, params int[] ids)
+        public void LoadChoose(int chap, int id, params object[] ids)
         {
             //chap, id 의 선택 정보 가져오기 => myChoose
             //MoveTo(ids[myChoose]);
