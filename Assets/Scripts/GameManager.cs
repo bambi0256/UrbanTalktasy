@@ -5,18 +5,10 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     //호감도 수치 저장
-    public float fox_level;
-    public float dob_level;
-    public float woo_level;
+    public static float fox_love;
+    public static float dob_love;
+    public static float woo_love;
     
-    //스크립트 Save
-    public bool ThereAnySave;
-    public SaveData SaveData;
-
-    //선택지 Save
-    public List<ChooseData> ChooseData;
-    
-
     //이전 씬 저장
     public string PrevScene;
 
@@ -34,7 +26,6 @@ public class GameManager : MonoBehaviour
         {
             
         }
-        
     }
 
     //파괴불가
@@ -59,36 +50,5 @@ public class GameManager : MonoBehaviour
         }
         _instance = this;
         DontDestroyOnLoad(gameObject);
-    }
-    
-    //PlayerPref 정보교환
-    private void Start()
-    {
-        GetPref();
-    }
-
-    private void GetPref()
-    {
-        if (!PlayerPrefs.HasKey("CurChap") || !PlayerPrefs.HasKey("CurId"))
-        {
-            ThereAnySave = false;
-            return;
-        }
-        SaveData.curChap = PlayerPrefs.GetInt("CurChap");
-        SaveData.curId = PlayerPrefs.GetInt("CurId");
-        ThereAnySave = true;
-    }
-
-    public void SavePref(int chap, int id)
-    {
-        if (chap != SaveData.curChap)
-        {
-            SaveData.curChap = chap;
-            PlayerPrefs.SetInt("CurChap", chap);
-        }
-
-        if (id == SaveData.curId) return;
-        SaveData.curId = id;
-        PlayerPrefs.SetInt("CurId", id);
     }
 }

@@ -1,4 +1,4 @@
-using JetBrains.Annotations;
+using System.Collections.Generic;
 
 namespace Struct
 {
@@ -6,11 +6,9 @@ namespace Struct
     {
         public int curChap;
         public int curId;
-    }
-    
-    public struct ChooseData
-    {
-        public SaveData WhereIn;
-        public int choose;
+        public int curLove_woo;
+        public int curLove_fox;
+        public int curLove_dob;
+        public Dictionary<int, int> ChooseData; // <Id, Choose> 데이터
     }
 }

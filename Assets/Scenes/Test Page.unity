@@ -714,7 +714,7 @@ MonoBehaviour:
   NextArrow: {fileID: 935161974}
   Context: {fileID: 688221832}
   Name: {fileID: 1067653361}
-  AutoMode: 0
+  AutoMode: 1
   DarkPanel: {fileID: 0}
   NameCard: {fileID: 83549967}
   Box: {fileID: 1542191194}

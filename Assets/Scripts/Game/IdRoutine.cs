@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Data;
+using Struct;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -22,6 +24,9 @@ namespace Game
         // Id Control
         private bool IdUpFlag;
         
+        // Save Component
+        private SaveData Auto;
+        
         // Text Effect Control
         public GameObject NextArrow;
         private bool isTextEffect;
@@ -35,8 +40,12 @@ namespace Game
         
         // Routine WaitControl
         
+        // Love Point
+        public int woo_love;
+        public int fox_love;
+        public int dob_love;
+        
         // in Functions
-        private int _id;
         public GameObject DarkPanel;
         public GameObject NameCard;
         public GameObject Box;
@@ -50,32 +59,21 @@ namespace Game
         {
             dialogueParse = DialogueManager.GetComponent<DialogueParse>();
             StartCoroutine(VisualNovelRoutine());
+            GetPref();
         }
 
         private IEnumerator VisualNovelRoutine()
         {
-            // 세이브된 내용 기반으로 Cursor 설정
-            if (!GameManager.Instance.ThereAnySave)
-            {
-                curChap = 0;
-                curId = 1;
-            }
-            else
-            {
-                curChap = GameManager.Instance.SaveData.curChap;
-                curId = GameManager.Instance.SaveData.curId;
-            }
-
             // 루틴 시작
             while (curId < dialogueParse.csvData[curChap].Count)
             {
                 // 게임 중 상태를 체크
                 if (GameState == false) yield return new WaitUntil(() => GameState);
-                
+
                 // Flag 초기화
                 isTextEffect = true;
                 IdUpFlag = true;
-                
+
                 // Parsing 정보 가져오기
                 var Now = dialogueParse.csvData[curChap][curId];
                 // Now[0] = id, [1] = name, [2] = context, [3] = Duration, [4] = CMD
@@ -89,7 +87,7 @@ namespace Game
                 // Text 출력
                 if (!isTextEffect) Context.text = Now[2];
                 else yield return StartCoroutine(Typing(Context, Now[2], TextSpeed));
-                
+
                 // AutoMode, Duration 만큼 기다리고 다음으로 진행
                 // UnAuto, 좌클릭 또는 스페이스 입력을 기다림
                 if (float.TryParse(Now[3], out var floatValues))
@@ -97,11 +95,9 @@ namespace Game
                     if (AutoMode) yield return new WaitForSecondsRealtime(floatValues);
                     else yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Mouse0));
                 }
-                
 
                 //AutoSave 관리
-                GameManager.Instance.SaveData.curChap = curChap;
-                GameManager.Instance.SaveData.curId = curId;
+                Save(false);
                 
                 // id++;
                 if (IdUpFlag)
@@ -131,7 +127,6 @@ namespace Game
             }
             NextArrow.SetActive(true);
             GameState = true;
-            yield break;
         }
         
         // cmd 스플릿 후 호출
@@ -169,7 +164,7 @@ namespace Game
             }
             return output;
         }
-        
+
         // Cmd 실행 함수
         private void Execute(string method, object[] factors)
         {
@@ -206,13 +201,75 @@ namespace Game
             }
         }
         
+        //AutoSave 함수
+        private void Save(bool IsLoveChange)
+        {
+            Auto.curChap = curChap;
+            Auto.curId = curId;
+            if (IsLoveChange)
+            {
+                Auto.curLove_woo = woo_love;
+                Auto.curLove_dob = dob_love;
+                Auto.curLove_fox = fox_love;
+            }
+            Debug.Log("세이브 작동");
+            SavePref();
+        }
+
+        private void ChooseData(int id, int Choose)
+        {
+            Auto.ChooseData.Add(id, Choose);
+            var Key = "Choose" + id;
+            PlayerPrefs.SetInt(Key, Choose);
+        }
+        
+        // PlayerPrefs 접근 함수 : 기본 시작 시에 저장된 커서와 호감도(마지막 Auto)를 가져옴.
+        // 만약 처음부터 실행 버튼을 누르면, 해당 기능에서 PlayerPrefs 값들을 초기화할 것.
+        private void GetPref()
+        {
+            curChap = PlayerPrefs.GetInt("CurChap");
+            curId = PlayerPrefs.GetInt("CurId");
+            woo_love = PlayerPrefs.GetInt("CurLove_woo");
+            fox_love = PlayerPrefs.GetInt("CurLove_fox");
+            dob_love = PlayerPrefs.GetInt("CurLove_dob");
+
+            for (var i = 1; i < curId; i++)
+            {
+                var Key = "Choose" + i;
+                if (PlayerPrefs.HasKey(Key))
+                {
+                    Auto.ChooseData[i] = PlayerPrefs.GetInt(Key);
+                }
+            }
+        }
+        
+        // PlayerPrefs 저장 함수 : Auto 변화 시 커서, 호감도를 저장해둠.
+        private void SavePref()
+        {
+            PlayerPrefs.SetInt("CurChap", Auto.curChap);
+            PlayerPrefs.SetInt("CurId", Auto.curId);
+            PlayerPrefs.SetInt("CurLove_woo", Auto.curLove_woo);
+            PlayerPrefs.SetInt("CurLove_fox", Auto.curLove_fox);
+            PlayerPrefs.SetInt("CurLove_dob", Auto.curLove_dob);
+        }
+        
         // cmd 함수들
         public void Choose(params object[] id)
         {
             // 입력받은 개수 확인
-            // 개수에 따라 box 활성화
+            var Count = id.Length;
+
+            // 개수에 따라 box 활성화 >> 최대 몇 개를 할 것 같은지? Case 쓸지 ScrollBox 쓸지 고민 중
             // 선택지의 내용을 불러와 출력
-            // 입력 대기, 입력받으면 MoveTo() 작동
+            for (var i = 0; i < Count; i++)
+            {
+                
+            }
+            
+            // 입력 대기, 입력받으면 Save Dictionary에 저장
+            var Ch = 1;
+            ChooseData(curId, Ch);
+            
             Debug.Log("Choose 작동");
         }
 
@@ -225,7 +282,22 @@ namespace Game
 
         public void Love(string charName)
         {
-            // GameManager의 InGame Love 값 증가
+            // 호감도 값 변경, Save 함수 작동
+            switch (charName)
+            {
+                case "Woo":
+                    woo_love += 1;
+                    Save(true);
+                    break;
+                case "Dob":
+                    dob_love += 1;
+                    Save(true);
+                    break;
+                case "Fox":
+                    fox_love += 1;
+                    Save(true);
+                    break;
+            }
             Debug.Log("Love 작동");
         }
 
@@ -375,8 +447,7 @@ namespace Game
 
         public void LoadChoose(int chap, int id, params object[] ids)
         {
-            //chap, id 의 선택 정보 가져오기 => myChoose
-            //MoveTo(ids[myChoose]);
+            // AutoSave 내에 있는 선택지 Dictionary를 읽어오기
             Debug.Log("LoadChoose 작동");
         }
     }
