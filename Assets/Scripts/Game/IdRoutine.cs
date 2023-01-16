@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Data;
 using Struct;
@@ -18,7 +17,6 @@ namespace Game
         // Parsing
         public GameObject DialogueManager;
         private DialogueParse dialogueParse;
-        private int curChap;
         private int curId;
         
         // Id Control
@@ -65,7 +63,7 @@ namespace Game
         private IEnumerator VisualNovelRoutine()
         {
             // 루틴 시작
-            while (curId < dialogueParse.csvData[curChap].Count)
+            while (curId < dialogueParse.csvData.Count)
             {
                 // 게임 중 상태를 체크
                 if (GameState == false) yield return new WaitUntil(() => GameState);
@@ -75,7 +73,7 @@ namespace Game
                 IdUpFlag = true;
 
                 // Parsing 정보 가져오기
-                var Now = dialogueParse.csvData[curChap][curId];
+                var Now = dialogueParse.csvData[curId];
                 // Now[0] = id, [1] = name, [2] = context, [3] = Duration, [4] = CMD
 
                 // cmd 진행
@@ -204,7 +202,6 @@ namespace Game
         //AutoSave 함수
         private void Save(bool IsLoveChange)
         {
-            Auto.curChap = curChap;
             Auto.curId = curId;
             if (IsLoveChange)
             {
@@ -227,7 +224,6 @@ namespace Game
         // 만약 처음부터 실행 버튼을 누르면, 해당 기능에서 PlayerPrefs 값들을 초기화할 것.
         private void GetPref()
         {
-            curChap = PlayerPrefs.GetInt("CurChap");
             curId = PlayerPrefs.GetInt("CurId");
             woo_love = PlayerPrefs.GetInt("CurLove_woo");
             fox_love = PlayerPrefs.GetInt("CurLove_fox");
@@ -246,7 +242,6 @@ namespace Game
         // PlayerPrefs 저장 함수 : Auto 변화 시 커서, 호감도를 저장해둠.
         private void SavePref()
         {
-            PlayerPrefs.SetInt("CurChap", Auto.curChap);
             PlayerPrefs.SetInt("CurId", Auto.curId);
             PlayerPrefs.SetInt("CurLove_woo", Auto.curLove_woo);
             PlayerPrefs.SetInt("CurLove_fox", Auto.curLove_fox);
@@ -261,13 +256,9 @@ namespace Game
 
             // 개수에 따라 box 활성화 >> 최대 몇 개를 할 것 같은지? Case 쓸지 ScrollBox 쓸지 고민 중
             // 선택지의 내용을 불러와 출력
-            for (var i = 0; i < Count; i++)
-            {
-                
-            }
-            
+
             // 입력 대기, 입력받으면 Save Dictionary에 저장
-            var Ch = 1;
+            const int Ch = 1;
             ChooseData(curId, Ch);
             
             Debug.Log("Choose 작동");
@@ -445,7 +436,7 @@ namespace Game
             Debug.Log("SkipTo 작동");
         }
 
-        public void LoadChoose(int chap, int id, params object[] ids)
+        public void LoadChoose(int id, params object[] ids)
         {
             // AutoSave 내에 있는 선택지 Dictionary를 읽어오기
             Debug.Log("LoadChoose 작동");

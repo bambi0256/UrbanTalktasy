@@ -4,7 +4,6 @@ namespace Struct
 {
     public struct SaveData
     {
-        public int curChap;
         public int curId;
         public int curLove_woo;
         public int curLove_fox;
