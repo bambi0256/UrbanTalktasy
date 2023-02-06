@@ -45,7 +45,7 @@ namespace Data
             //각 줄 별 값 분리, num 0은 헤더
             for (var id = StartNum; id < StartNum + dataLines.Length; id++)
             {
-                var values = Regex.Split(dataLines[id], SPLIT_RE);
+                var values = Regex.Split(dataLines[id - StartNum], SPLIT_RE);
                 if (values.Length == 0) continue;
 
                 //Data Trimming

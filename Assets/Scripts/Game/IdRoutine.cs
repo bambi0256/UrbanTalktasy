@@ -5,6 +5,8 @@ using Data;
 using Struct;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
+using Image = UnityEngine.UI.Image;
 
 namespace Game
 {
@@ -45,19 +47,26 @@ namespace Game
         
         // in Functions
         public GameObject DarkPanel;
+        public GameObject FadePanel;
         public GameObject NameCard;
         public GameObject Box;
+        public GameObject MessengerBox;
+        
         public Sprite Box_Default;
         public Sprite Box_Nar;
+        
         public Scrollbar Scroll;
-        public GameObject MessengerBox;
+        
         public Text MessengerName;
+        public AudioSource Audio;
+        
+        public Image BackGroundImage;
 
         private void Start()
         {
             dialogueParse = DialogueManager.GetComponent<DialogueParse>();
-            StartCoroutine(VisualNovelRoutine());
             GetPref();
+            StartCoroutine(VisualNovelRoutine());
         }
 
         private IEnumerator VisualNovelRoutine()
@@ -91,7 +100,9 @@ namespace Game
                 if (float.TryParse(Now[3], out var floatValues))
                 {
                     if (AutoMode) yield return new WaitForSecondsRealtime(floatValues);
-                    else yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Mouse0));
+                    else
+                        yield return new WaitUntil(() =>
+                            Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Mouse0));
                 }
 
                 //AutoSave 관리
@@ -105,7 +116,7 @@ namespace Game
             }
         }
 
-        private IEnumerator WaitSeconds(float time)
+        private static IEnumerator WaitSeconds(float time)
         {
             while (time > 0f)
             {
@@ -295,26 +306,38 @@ namespace Game
         public void CharSprite(params object[] sprite)
         {
             // Sprite 개수 확인
+            var Num = sprite.Length;
             // 개수에 맞는 패널 활성화
+            
             // Sprite 변경
+            for (var i = 0; i < Num; i++)
+            {
+                
+            }
             Debug.Log("CharSprite 작동");
         }
 
-        public void SetBackSprite(string sprite)
+        public void SetBackSprite(int Number)
         {
             // Sprite 변경
+            var Back = Resources.LoadAll<Sprite>("Background");
+            BackGroundImage.sprite = Back[Number];
             Debug.Log("SetBackSprite 작동");
         }
 
-        public void SetBGM(string BGM)
+        public void SetBGM(int Number)
         {
             // BGM Audio 변경
+            var BGM = Resources.LoadAll<AudioClip>("BGM");
+            Audio.clip = BGM[Number];
             Debug.Log("SetBGM 작동");
         }
 
-        public void SetEffect(string Effect)
+        public void SetEffect(int Number)
         {
             // Effect Audio 변경
+            var Effect = Resources.LoadAll<AudioClip>("Effect");
+            Audio.clip = Effect[Number];
             Debug.Log("SetEffect 작동");
         }
 
@@ -333,13 +356,39 @@ namespace Game
         public void FadeIn()
         {
             // Fade In
+            StartCoroutine(FadeInCoroutine());
             Debug.Log("Fade In 작동");
+        }
+
+        IEnumerator FadeInCoroutine()
+        {
+            var image = FadePanel.GetComponent<Image>();
+            float Count = 0;
+            while (Count < 1.0f)
+            {
+                Count += 0.01f;
+                yield return WaitSeconds(0.01f);
+                image.color = new Color(0, 0, 0, Count);
+            }
         }
 
         public void FadeOut()
         {
             // Fade Out
+            StartCoroutine(FadeOutCoroutine());
             Debug.Log("Fade Out 작동");
+        }
+        
+        IEnumerator FadeOutCoroutine()
+        {
+            var image = FadePanel.GetComponent<Image>();
+            var Count = 1.0f;
+            while (Count > 0)
+            {
+                Count -= 0.01f;
+                yield return WaitSeconds(0.01f);
+                image.color = new Color(0, 0, 0, Count);
+            }
         }
 
         public void NameCardOn()
