@@ -356,6 +356,7 @@ namespace Game
         public void FadeIn()
         {
             // Fade In
+            FadePanel.SetActive(true);
             StartCoroutine(FadeInCoroutine());
             Debug.Log("Fade In 작동");
         }
@@ -376,6 +377,7 @@ namespace Game
         {
             // Fade Out
             StartCoroutine(FadeOutCoroutine());
+            FadePanel.SetActive(false);
             Debug.Log("Fade Out 작동");
         }
         
