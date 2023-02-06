@@ -578,7 +578,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33a7f40df8c2c1a43a56a2f75fdb97d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  csvFile0: {fileID: 4900000, guid: 3073625a0fb707c45aa3a205ea61e59e, type: 3}
+  csvFile0: {fileID: 4900000, guid: 305f293917c5111498fb020a8adbb1cd, type: 3}
   csvFile1: {fileID: 0}
   csvFile2: {fileID: 0}
   csvFile3: {fileID: 0}
@@ -1052,12 +1052,12 @@ MonoBehaviour:
   NameCard: {fileID: 83549967}
   Box: {fileID: 1542191194}
   MessengerBox: {fileID: 0}
+  BackGround: {fileID: 639149880}
   Box_Default: {fileID: 0}
   Box_Nar: {fileID: 0}
   Scroll: {fileID: 0}
   MessengerName: {fileID: 0}
-  Audio: {fileID: 0}
-  BackGroundImage: {fileID: 0}
+  Audio: {fileID: 934572125}
 --- !u!4 &1029032345
 Transform:
   m_ObjectHideFlags: 0

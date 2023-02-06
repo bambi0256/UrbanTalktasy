@@ -5,8 +5,6 @@ using Data;
 using Struct;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.UIElements;
-using Image = UnityEngine.UI.Image;
 
 namespace Game
 {
@@ -26,13 +24,14 @@ namespace Game
         
         // Save Component
         private SaveData Auto;
+        public SaveData SaveFile;
         
         // Text Effect Control
         public GameObject NextArrow;
         private bool isTextEffect;
         public Text Context;
         public Text Name;
-        private const float TextSpeed = 0.1f;
+        private const float TextSpeed = 0.07f;
 
         // Game Event Control
         public static bool GameState;
@@ -51,6 +50,7 @@ namespace Game
         public GameObject NameCard;
         public GameObject Box;
         public GameObject MessengerBox;
+        public Image BackGround;
         
         public Sprite Box_Default;
         public Sprite Box_Nar;
@@ -59,13 +59,13 @@ namespace Game
         
         public Text MessengerName;
         public AudioSource Audio;
-        
-        public Image BackGroundImage;
 
         private void Start()
         {
             dialogueParse = DialogueManager.GetComponent<DialogueParse>();
-            GetPref();
+            PlayerPrefs.DeleteAll();
+            curId = 1;
+            // GetPref();
             StartCoroutine(VisualNovelRoutine());
         }
 
@@ -115,15 +115,7 @@ namespace Game
                 }
             }
         }
-
-        private static IEnumerator WaitSeconds(float time)
-        {
-            while (time > 0f)
-            {
-                time -= Time.deltaTime;
-            }
-            yield return null;
-        }
+        
         // 타이핑 효과
         private IEnumerator Typing(Text typingText, string message, float speed)
         {
@@ -132,7 +124,7 @@ namespace Game
             for (var i = 0; i < message.Length; i++)
             {
                 typingText.text = message.Substring(0, i + 1);
-                yield return StartCoroutine(WaitSeconds(speed));
+                yield return new WaitForSeconds(speed);
             }
             NextArrow.SetActive(true);
             GameState = true;
@@ -317,11 +309,11 @@ namespace Game
             Debug.Log("CharSprite 작동");
         }
 
-        public void SetBackSprite(int Number)
+        public void SetBackSprite(string Number)
         {
             // Sprite 변경
-            var Back = Resources.LoadAll<Sprite>("Background");
-            BackGroundImage.sprite = Back[Number];
+            // var Back = Resources.LoadAll<Sprite>("Background");
+            // BackGround.sprite = Back[Number];
             Debug.Log("SetBackSprite 작동");
         }
 
@@ -368,7 +360,7 @@ namespace Game
             while (Count < 1.0f)
             {
                 Count += 0.01f;
-                yield return WaitSeconds(0.01f);
+                yield return new WaitForSeconds(0.01f);
                 image.color = new Color(0, 0, 0, Count);
             }
         }
@@ -388,7 +380,7 @@ namespace Game
             while (Count > 0)
             {
                 Count -= 0.01f;
-                yield return WaitSeconds(0.01f);
+                yield return new WaitForSeconds(0.01f);
                 image.color = new Color(0, 0, 0, Count);
             }
         }

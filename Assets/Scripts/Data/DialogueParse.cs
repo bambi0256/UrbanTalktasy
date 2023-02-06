@@ -43,9 +43,9 @@ namespace Data
             var dataLines = Regex.Split(textAsset.text, LINE_SPLIT_RE);
 
             //각 줄 별 값 분리, num 0은 헤더
-            for (var id = StartNum; id < StartNum + dataLines.Length; id++)
+            for (var id = 1; id < dataLines.Length; id++)
             {
-                var values = Regex.Split(dataLines[id - StartNum], SPLIT_RE);
+                var values = Regex.Split(dataLines[id], SPLIT_RE);
                 if (values.Length == 0) continue;
 
                 //Data Trimming
@@ -57,7 +57,7 @@ namespace Data
                 }
 
                 var entry = values.ToList();
-                output[id] = entry;
+                output[id + StartNum] = entry;
             }
             return output;
         }
