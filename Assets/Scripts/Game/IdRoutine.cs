@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Data;
 using Struct;
@@ -12,12 +14,12 @@ namespace Game
     {
         // Regex
         private const string CMD_NAME = @"(^\w+)";
-        private const string CMD_FACTOR = @"(?<=,|\()(\""""?\w+)(\""""?)";
+        private const string CMD_FACTOR = @"(?<=,| |\()(\'?\w+)(\'?)";
 
         // Parsing
         public GameObject DialogueManager;
         private DialogueParse dialogueParse;
-        private int curId;
+        private int curId = 1;
         
         // Id Control
         private bool IdUpFlag;
@@ -64,8 +66,7 @@ namespace Game
         {
             dialogueParse = DialogueManager.GetComponent<DialogueParse>();
             PlayerPrefs.DeleteAll();
-            curId = 1;
-            // GetPref();
+            GetPref();
             StartCoroutine(VisualNovelRoutine());
         }
 
@@ -179,26 +180,46 @@ namespace Game
             {
                 var infos = Function.GetParameters();
                 var newFactors = new object[factors.Length];
+                var array = new int[3];
                 var i = 0;
                 foreach (var t in infos)
                 {
-                    if (t.ParameterType == typeof(float))
+                    if (t.ParameterType == typeof(float)) newFactors[i] = float.Parse(factors[i].ToString());
+                    else if (t.ParameterType == typeof(string)) newFactors[i] = factors[i].ToString();
+                    else if (t.ParameterType == typeof(int)) newFactors[i] = int.Parse(factors[i].ToString());
+                    else if (t.ParameterType == typeof(int[]))
                     {
-                        newFactors[i] = (float)factors[i];
-                        i++;
+                        for (var j = 0; j < newFactors.Length - i; j++)
+                        {
+                            array[j] = int.Parse(factors[i].ToString());
+                            newFactors[i] = array;
+                        }
+                        break;
                     }
-                    else if (t.ParameterType == typeof(string)) 
-                    {
-                        newFactors[i] = factors[i].ToString();
-                        i++;
-                    }
-                    else if (t.ParameterType == typeof(int))
-                    {
-                        newFactors[i] = (int)factors[i];
-                        i++;
-                    }
+                    i++;
                 }
-                Function.Invoke(this, new object[] { newFactors });
+                Function.Invoke(this, newFactors);
+            }
+            catch (TargetParameterCountException)
+            {
+                var infos = Function.GetParameters();
+                var newFactors = new object[infos.Length];
+                var i = 0;
+                foreach (var t in infos)
+                {
+                    if (t.ParameterType == typeof(float)) newFactors[i] = float.Parse(factors[i].ToString());
+                    else if (t.ParameterType == typeof(string)) newFactors[i] = factors[i].ToString();
+                    else if (t.ParameterType == typeof(int)) newFactors[i] = int.Parse(factors[i].ToString());
+                    else if (t.ParameterType == typeof(int[]))
+                    {
+                        var array = new int[3];
+                        for (var j = 0; j < newFactors.Length - i; j++) array[j] = int.Parse(factors[i + j].ToString());
+                        newFactors[i] = array;
+                        break;
+                    }
+                    i++;
+                }
+                Function.Invoke(this, newFactors);
             }
         }
         
@@ -227,10 +248,10 @@ namespace Game
         // 만약 처음부터 실행 버튼을 누르면, 해당 기능에서 PlayerPrefs 값들을 초기화할 것.
         private void GetPref()
         {
-            curId = PlayerPrefs.GetInt("CurId");
-            woo_love = PlayerPrefs.GetInt("CurLove_woo");
-            fox_love = PlayerPrefs.GetInt("CurLove_fox");
-            dob_love = PlayerPrefs.GetInt("CurLove_dob");
+            if(PlayerPrefs.HasKey("CurId")) curId = PlayerPrefs.GetInt("CurId");
+            if(PlayerPrefs.HasKey("CurLove_woo")) woo_love = PlayerPrefs.GetInt("CurLove_woo");
+            if(PlayerPrefs.HasKey("CurLove_fox")) fox_love = PlayerPrefs.GetInt("CurLove_fox");
+            if(PlayerPrefs.HasKey("CurLove_dob")) dob_love = PlayerPrefs.GetInt("CurLove_dob");
 
             for (var i = 1; i < curId; i++)
             {
@@ -252,7 +273,7 @@ namespace Game
         }
         
         // cmd 함수들
-        public void Choose(params object[] id)
+        public void Choose(params int[] id)
         {
             // 입력받은 개수 확인
             var Count = id.Length;
@@ -295,25 +316,37 @@ namespace Game
             Debug.Log("Love 작동");
         }
 
-        public void CharSprite(params object[] sprite)
+        public void CharSprite(params int[] input)
         {
-            // Sprite 개수 확인
-            var Num = sprite.Length;
-            // 개수에 맞는 패널 활성화
+            var Count = input[0];
+            if (int.TryParse(Count.ToString(), out var intResult))
+
+            // 개수에 맞게 패널 On/Off, 
+            switch (Count)
+            {
+                case 0:
+                    break;
+                case 1:
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    break;
+            }
             
             // Sprite 변경
-            for (var i = 0; i < Num; i++)
+            for (var i = 0; i < intResult; i++)
             {
                 
             }
             Debug.Log("CharSprite 작동");
         }
 
-        public void SetBackSprite(string Number)
+        public void SetBackSprite(int Number)
         {
             // Sprite 변경
-            // var Back = Resources.LoadAll<Sprite>("Background");
-            // BackGround.sprite = Back[Number];
+            var Back = Resources.LoadAll<Sprite>("Background");
+            BackGround.sprite = Back[Number];
             Debug.Log("SetBackSprite 작동");
         }
 
@@ -353,7 +386,7 @@ namespace Game
             Debug.Log("Fade In 작동");
         }
 
-        IEnumerator FadeInCoroutine()
+        private IEnumerator FadeInCoroutine()
         {
             var image = FadePanel.GetComponent<Image>();
             float Count = 0;
@@ -373,7 +406,7 @@ namespace Game
             Debug.Log("Fade Out 작동");
         }
         
-        IEnumerator FadeOutCoroutine()
+        private IEnumerator FadeOutCoroutine()
         {
             var image = FadePanel.GetComponent<Image>();
             var Count = 1.0f;
@@ -479,7 +512,7 @@ namespace Game
             Debug.Log("SkipTo 작동");
         }
 
-        public void LoadChoose(int id, params object[] ids)
+        public void LoadChoose(int id, params int[] ids)
         {
             // AutoSave 내에 있는 선택지 Dictionary를 읽어오기
             Debug.Log("LoadChoose 작동");
