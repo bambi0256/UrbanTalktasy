@@ -213,7 +213,18 @@ namespace Game
                     else if (t.ParameterType == typeof(int[]))
                     {
                         var array = new int[3];
-                        for (var j = 0; j < newFactors.Length - i; j++) array[j] = int.Parse(factors[i + j].ToString());
+                        if (factors.Length < infos.Length)
+                        {
+                            Array.Resize(ref array, 0);
+                            newFactors[i] = array;
+                            break;
+                        }
+
+                        for (var j = 0; j < newFactors.Length - i; j++)
+                        {
+                            array[j] = int.Parse(factors[i + j].ToString());
+                            Array.Resize(ref array, j);
+                        }
                         newFactors[i] = array;
                         break;
                     }
@@ -318,11 +329,9 @@ namespace Game
 
         public void CharSprite(params int[] input)
         {
-            var Count = input[0];
-            if (int.TryParse(Count.ToString(), out var intResult))
-
-            // 개수에 맞게 패널 On/Off, 
-            switch (Count)
+            Debug.Log(input.Length);
+            // 개수에 맞게 패널 On/Off
+            switch (input.Length)
             {
                 case 0:
                     break;
@@ -334,11 +343,7 @@ namespace Game
                     break;
             }
             
-            // Sprite 변경
-            for (var i = 0; i < intResult; i++)
-            {
-                
-            }
+            
             Debug.Log("CharSprite 작동");
         }
 
