@@ -52,6 +52,8 @@ namespace Game
         public GameObject NameCard;
         public GameObject Box;
         public GameObject MessengerBox;
+        public GameObject[] CharacterPanel;
+        
         public Image BackGround;
         
         public Sprite Box_Default;
@@ -61,6 +63,7 @@ namespace Game
         
         public Text MessengerName;
         public AudioSource Audio;
+        public AudioSource EffectAudio;
 
         private void Start()
         {
@@ -329,45 +332,65 @@ namespace Game
 
         public void CharSprite(params int[] input)
         {
-            Debug.Log(input.Length);
             // 개수에 맞게 패널 On/Off
             switch (input.Length)
             {
                 case 0:
+                    CharacterPanel[0].SetActive(false);
+                    CharacterPanel[1].SetActive(false);
+                    CharacterPanel[2].SetActive(false);
+                    CharacterPanel[3].SetActive(false);
+                    CharacterPanel[4].SetActive(false);
                     break;
                 case 1:
+                    CharacterPanel[0].SetActive(false);
+                    CharacterPanel[1].SetActive(false);
+                    CharacterPanel[2].SetActive(true);
+                    CharacterPanel[3].SetActive(false);
+                    CharacterPanel[4].SetActive(false);
+                    CharacterPanel[2].GetComponent<Image>().sprite = Resources.LoadAll<Sprite>("Character")[input[0]];
                     break;
                 case 2:
+                    CharacterPanel[0].SetActive(false);
+                    CharacterPanel[1].SetActive(true);
+                    CharacterPanel[2].SetActive(false);
+                    CharacterPanel[3].SetActive(true);
+                    CharacterPanel[4].SetActive(false);
+                    CharacterPanel[1].GetComponent<Image>().sprite = Resources.LoadAll<Sprite>("Character")[input[0]];
+                    CharacterPanel[3].GetComponent<Image>().sprite = Resources.LoadAll<Sprite>("Character")[input[1]];
                     break;
                 case 3:
+                    CharacterPanel[0].SetActive(true);
+                    CharacterPanel[1].SetActive(false);
+                    CharacterPanel[2].SetActive(true);
+                    CharacterPanel[3].SetActive(false);
+                    CharacterPanel[4].SetActive(true);
+                    CharacterPanel[0].GetComponent<Image>().sprite = Resources.LoadAll<Sprite>("Character")[input[0]];
+                    CharacterPanel[2].GetComponent<Image>().sprite = Resources.LoadAll<Sprite>("Character")[input[1]];
+                    CharacterPanel[4].GetComponent<Image>().sprite = Resources.LoadAll<Sprite>("Character")[input[2]];
                     break;
             }
-            
-            
             Debug.Log("CharSprite 작동");
         }
 
         public void SetBackSprite(int Number)
         {
             // Sprite 변경
-            var Back = Resources.LoadAll<Sprite>("Background");
-            BackGround.sprite = Back[Number];
+            BackGround.sprite = Resources.LoadAll<Sprite>("Background")[Number];
             Debug.Log("SetBackSprite 작동");
         }
 
         public void SetBGM(int Number)
         {
             // BGM Audio 변경
-            var BGM = Resources.LoadAll<AudioClip>("BGM");
-            Audio.clip = BGM[Number];
+            Audio.clip = Resources.LoadAll<AudioClip>("BGM")[Number];
             Debug.Log("SetBGM 작동");
         }
 
         public void SetEffect(int Number)
         {
             // Effect Audio 변경
-            var Effect = Resources.LoadAll<AudioClip>("Effect");
-            Audio.clip = Effect[Number];
+            EffectAudio.clip = Resources.LoadAll<AudioClip>("Effect")[Number];
             Debug.Log("SetEffect 작동");
         }
 
@@ -376,7 +399,6 @@ namespace Game
             DarkPanel.SetActive(true);
             Debug.Log("DarkPanelActiveOn 작동");
         }
-
         public void DarkPanelActiveOff()
         {
             DarkPanel.SetActive(false);
@@ -390,7 +412,6 @@ namespace Game
             StartCoroutine(FadeInCoroutine());
             Debug.Log("Fade In 작동");
         }
-
         private IEnumerator FadeInCoroutine()
         {
             var image = FadePanel.GetComponent<Image>();
@@ -410,7 +431,6 @@ namespace Game
             FadePanel.SetActive(false);
             Debug.Log("Fade Out 작동");
         }
-        
         private IEnumerator FadeOutCoroutine()
         {
             var image = FadePanel.GetComponent<Image>();
@@ -428,7 +448,6 @@ namespace Game
             NameCard.SetActive(true);
             Debug.Log("NameCardOn 작동");
         }
-
         public void NameCardOff()
         {
             NameCard.SetActive(false);
@@ -440,26 +459,23 @@ namespace Game
             Box.SetActive(false);
             Debug.Log("BoxOff 작동");
         }
-
         public void BoxOn()
         {
             Box.SetActive(true);
             Debug.Log("BoxOn 작동");
         }
-
         public void SetBoxNar()
         {
             Box.GetComponent<Image>().sprite = Box_Nar;
             Debug.Log("SetBoxNar 작동");
         }
-
         public void SetBoxDefault()
         {
             Box.GetComponent<Image>().sprite = Box_Default;
             Debug.Log("SetBoxDefault 작동");
         }
 
-        public void ExtraSpriteOn(string fileName)
+        public void ExtraSpriteOn(int Number)
         {
             // PopUp Active True
             // PopUp Sprite를 fileName Sprite로 변경
