@@ -5,101 +5,35 @@ namespace UI
 {
     public class BtnOnclick : MonoBehaviour
     {
-        public GameObject Info1;
-        public GameObject Info2;
-        public GameObject Info3;
-        public GameObject Esc;
-
-        private bool BoolPopup;
-
-        private void Awake()
+        public void SceneGameStart()
         {
-            BoolPopup = false;
-        }
-
-        public void SetInfo_1()
-        {
-            Info1.SetActive(true);
-            Info2.SetActive(false);
-            Info3.SetActive(false);
-            BoolPopup = true;
-        }
-
-        public void SetInfo_2()
-        {
-            Info2.SetActive(true);
-            Info1.SetActive(false);
-            Info3.SetActive(false);
-            BoolPopup = true;
-        }
-
-        public void SetInfo_3()
-        {
-            Info3.SetActive(true);
-            Info1.SetActive(false);
-            Info2.SetActive(false);
-            BoolPopup = true;
-        }
-
-        public void SetSaveLoad()
-        {
-            GameManager.Instance.PrevScene = SceneManager.GetActiveScene().name;
             SceneManager.LoadScene("SaveLoad");
         }
     
-        public void SetDic()
+        public void SceneDictionary()
         {
-            GameManager.Instance.PrevScene = SceneManager.GetActiveScene().name;
             SceneManager.LoadScene("Dictionary");
         }
 
-        public void SetSelect()
+        public void SceneLoveStory()
         {
-            GameManager.Instance.PrevScene = SceneManager.GetActiveScene().name;
             SceneManager.LoadScene("Select Scene");
         }
 
-        public void SetFriend()
+        public void OpenOption()
         {
-            GameManager.Instance.PrevScene = SceneManager.GetActiveScene().name;
             SceneManager.LoadScene("Friends");
         }
 
-        public void SetStart()
+        public void OpenCredit()
         {
-            GameManager.Instance.PrevScene = SceneManager.GetActiveScene().name;
-            SceneManager.LoadScene("Start");
+            
         }
 
-        public void SetBack()
-        {
-            SceneManager.LoadScene(GameManager.Instance.PrevScene);
-        }
-
-        public void YesOutGame()
+        public void ExitGame()
         {
             Application.Quit();
         }
 
-        public void NoOutGame()
-        {
-            Esc.SetActive(false);
-            BoolPopup = false;
-        }
-    
-        public void Update()
-        {
-            if (!Input.GetKeyDown("escape")) return;
-            if (!BoolPopup)
-            {
-                Esc.SetActive(!Esc.activeSelf);
-                BoolPopup = true;
-            }
-            else
-            {
-                GameObject.FindWithTag("PopUp").gameObject.SetActive(false);
-                BoolPopup = false;
-            }
-        }
     }
 }

@@ -9,11 +9,7 @@ namespace Data
     public class DialogueParse : MonoBehaviour
     {
         public TextAsset csvFile0;
-        public TextAsset csvFile1;
-        public TextAsset csvFile2;
-        public TextAsset csvFile3;
-        public TextAsset csvFile4;
-        public TextAsset csvFile5;
+        public int StartNum;
         
         private const string SPLIT_RE = ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
         private const string LINE_SPLIT_RE = "\n|\r\n";
@@ -23,16 +19,7 @@ namespace Data
         
         private void Start()
         {
-            IdRoutine.GameState = false;
-            csvData = Parsing(csvFile0, 0);
-            /*
-            csvData += Parsing(csvFile1, 100);
-            csvData += Parsing(csvFile2, 200);
-            csvData += Parsing(csvFile3, 300);
-            csvData += Parsing(csvFile4, 400);
-            csvData += Parsing(csvFile5, 500);
-            */
-            IdRoutine.GameState = true;
+            csvData = Parsing(csvFile0, StartNum);
         }
 
         private static Dictionary<int, List<string>> Parsing(TextAsset textAsset, int StartNum)
@@ -57,7 +44,7 @@ namespace Data
                 }
 
                 var entry = values.ToList();
-                output[id + StartNum] = entry;
+                output[id + StartNum - 1] = entry;
             }
             return output;
         }
